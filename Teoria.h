@@ -12,13 +12,14 @@ class Teoria {
 		double W;
 		double Wq;
 		double X;
-		double Ro;//Constante
-		double Po;//Constante
-		double Ps;//Constante
+		double Ro;
+		double Po;
+		double Ps;
 		
 	public:
 
-		double factorial(double numero);
+		Teoria();
+		long long int factorial(long long int numero);
 		double potencia(double base,double exponente);
 		void Inicializar(double Lambda, double Miu); //Define los valores para cada constante
 		void Resolver(double Lambda, double Miu);

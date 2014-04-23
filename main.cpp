@@ -4,6 +4,7 @@
 //#include "Formulas.h"
 #include "Teoria.h"
 #include <fstream>
+#include <iomanip>  
 
 using namespace std;
 
@@ -25,43 +26,32 @@ int main(){
 
 	if(!ent)
 	{
-		cout << "Existe un probolema con el archivo o no Existe" << endl;
+		cout << "Existe un problema con el archivo o no Existe" << endl;
 
 	}else
 	{
-
 		ent >> n;
-		cout << "puto n_ "<<n<<endl;
 
 		for(int i =0;i<n;i++)
 		{
-			ent>> a >> b >> cr >> tt >> ts;
-			//cout<< a << " "<<  b << " " << cr << " " << tt << " " << ts << " " << "\n";
-		 	
+			ent >> a >> b >> cr >> tt >> ts;
+			//cout << a << " " << b << " " << cr << " " << tt << " " << ts << endl;
+  		 	
 		 	//Inicio de la parte Teorica:
 			T.Inicializar(a,b);
 			T.Resolver(a,b);
-			cout << "Modelo " << i+1 << endl;
-			cout << "\t \t" << " Utilizaciòn " << "\t" << "\t" << " L " << "\t"  << "\t" << " Lq " << "\t" << "\t" << " W " << "\t" << "\t" << " Wq " << endl;
-			cout << "\t" << "\t" << T.Get_X() << " " <<  "\t" << T.Get_Lq() << " " << "\t" << T.Get_W() << " " << "\t" << T.Get_Lq() << " " << "\t" << T.Get_L() << endl;
-
+			std::cout << std::fixed; 
+			cout << "Modelo " << i+1 << ":" << endl;
+			cout << "\t\t\t" << "Utilización" << "\t\t" << "L" << "\t\t"  << "Lq" << "\t\t" << "W" << "\t\t" << "Wq" << endl;
+			cout << "Teórico" << "\t\t" << setprecision(2) << T.Get_X() << "\t\t\t" << setprecision(2) << T.Get_L() << "\t" << setprecision(2) << T.Get_Lq() << "\t3" << setprecision(2) << T.Get_W() << "\t4" << setprecision(2) << T.Get_Wq() << endl;
 			T.limpiar();
+			cout << endl;
 		}
-
 
 		ent.close();
 
 	}
 	
-/*
-	cin >> n;
-	while(n--)//Mientras el numero de casos sea distinto de 0
-	{
-	
-		scanf("%lg %lg %lg %lg %lg", &a, &b, &cr, &tt, &ts);
-		printf("%lg %lg %lg% lg %lg\n",a,b,cr,tt,ts);
-	}*/
-
 	return 0;
 }
 
