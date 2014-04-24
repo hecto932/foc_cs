@@ -26,28 +26,22 @@ long long int Teoria::factorial(long long int numero)
 	return resultado;
 }
 
-//CALCULA LA POTENCIA (Base, Exponente)
-double Teoria::potencia(double base,double exponente)
-{
-	return pow(base,exponente);
-}
-
 //INICIALIZA EL MODELO CALCULANDO CIERTOS PARAMETROS
 void Teoria::Inicializar(double Lambda, double Miu)
 {
 	double Pc = 0;
 	Ro = Lambda/Miu;//CALCULAMOS RO
 	for(int i=0;i<4;i++)
-		Pc += (potencia(Ro,i)/factorial(i)); 
-	Pc += ( potencia(Ro, 4) / ( 24 * ( 1 - Ro/4 ) ) );
-	Po = potencia(Pc,-1);
-	Ps = ( potencia(Ro,4) / 24 ) * Po;
+		Pc += (pow(Ro,i)/factorial(i)); 
+	Pc += ( pow(Ro, 4) / ( 24 * ( 1 - Ro/4 ) ) );
+	Po = pow(Pc,-1);
+	Ps = ( pow(Ro,4) / 24 ) * Po;
 }
 
 //RESOLVEMOS PARTE DEL MODELO 
 void Teoria::Resolver(double Lambda, double Miu)
 {
-	Lq = ( (4 * Ro) / potencia((4 - Ro),2) ) * Ps;
+	Lq = ( (4 * Ro) / pow((4 - Ro),2) ) * Ps;
 	
 	L = Lq + Ro;
 	

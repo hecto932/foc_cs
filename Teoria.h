@@ -1,9 +1,6 @@
 #ifndef _TEORIA_
 #define _TEORIA_
 
-using namespace std;
-
-
 class Teoria {
 	
 	private:
@@ -28,7 +25,6 @@ class Teoria {
 		double Get_W();
 		double Get_Wq();
 		double Get_X();
-
 		void limpiar();
 		
 };
