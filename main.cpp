@@ -21,6 +21,7 @@
 
 //LIBERIAS CREADAS 
 #include "Teoria.h"
+#include "Simulacion.h"
 
 using namespace std;
 
@@ -33,6 +34,7 @@ int main(){
 	double tt;//TIEMPO DE TRANSICIÓN 
 	double ts;//TIEMPO DE SIMULACIÓN
 
+	Simulacion S;//SIMULACION
 	Teoria T;//MODELO TEORICO
 
 	ifstream in_modelo;//APUNTADOR AL ARCHIVO DE ENTRADA "modelo.in" 
@@ -55,8 +57,9 @@ int main(){
 		for(int i=0;i<n;++i)//PARA CADA MODELO
 		{
 			in_modelo >> a >> b >> cr >> tt >> ts;//LEEMOS SUS DATOS
-  		 	
-		 	//CALCULAMOS LA PARTE TEORICA
+  		 	//EN ESTA PARTE DEL CODIGO REALIZAMOS LA SIMULACION CORRESPONDIENTE AL MODELO ACTUAL
+
+		 	//AHORA CALCULAMOS LA PARTE TEORICA
 			T.Inicializar(1/a,1/b);
 			T.Resolver(1/a,1/b);
 
