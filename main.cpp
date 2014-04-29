@@ -12,30 +12,20 @@
 
 */
 
-//LIBRERIAS PROPIAS DE C++
 #include <iostream>
 #include <cstdio>
 #include <fstream>
 #include <iomanip> 
 #include <string> 
 
-//LIBERIAS CREADAS 
-#include "Teoria.h"
-#include "Simulacion.h"
+#include "Modelo.h"
 
 using namespace std;
 
-int main(){
-
-	long long int n;//CANTIDAD DE MODELOS A PROCESAR
-	double a;//LAMBDA
-	double b;//MIU
-	double cr;//CANTIDAD DE REPLICAS
-	double tt;//TIEMPO DE TRANSICIÓN 
-	double ts;//TIEMPO DE SIMULACIÓN
-
-	Simulacion S;//SIMULACION
-	Teoria T;//MODELO TEORICO
+int main()
+{
+	Modelo m;
+	int n;
 
 	ifstream in_modelo;//APUNTADOR AL ARCHIVO DE ENTRADA "modelo.in" 
 	ofstream out_performance, out_simulacion;//APUNTADOR AL ARCHIVO DE SALIDA "performance.out"
@@ -50,32 +40,31 @@ int main(){
 	else
 	{
 		in_modelo >> n;//LEEMOS EL NUMERO DE MODELOS A PROCESAR DEL ARCHIVO MODELO.IN
-
+		
 		out_performance.precision(2);//PRECISION A 2 DECIMALES
 		out_performance.setf(ios::fixed);
 
+		out_simulacion.precision(4);//PRECISION A 4 DECIMALES
+		out_simulacion.setf(ios::fixed);
+
 		for(int i=0;i<n;++i)//PARA CADA MODELO
 		{
-			in_modelo >> a >> b >> cr >> tt >> ts;//LEEMOS SUS DATOS
-  		 	//EN ESTA PARTE DEL CODIGO REALIZAMOS LA SIMULACION CORRESPONDIENTE AL MODELO ACTUAL
-
-		 	//AHORA CALCULAMOS LA PARTE TEORICA
-			T.Inicializar(1/a,1/b);
-			T.Resolver(1/a,1/b);
-
-			//ESCRIBIMOS LOS RESULTADOS EN EL ARCHIVO DE SALIDA
-			out_performance << "Modelo " << i+1 << ":" << endl;
-			out_performance << "\t\t\t" << "Utilización" << "\t\t" << "L" << "\t\t"  << "Lq" << "\t\t" << "W" << "\t\t" << "Wq" << endl;
-			out_performance << "Teórico" << "\t\t"  << T.Get_X() << "\t\t\t"  << T.Get_L() << "\t"  << T.Get_Lq() << "\t"  << T.Get_W() << "\t"  << T.Get_Wq() << endl;
-			out_performance << endl;
-
-			T.limpiar();//LIMPIAMOS LAS VARIABLES
+			m.leer_modelo(in_modelo);
+			m.resolver_teoria();
+			m.realizar_simulacion();
+			m.show_results(i,out_performance);
+			m.limpiar();
 		}
 
 		in_modelo.close();//CERRAMOS EL ARCHIVO DE ENTRADA
 		out_performance.close();//CERRAMOS EL ARCHIVO DE SALIDA
 
+		/*cout << "| tiempo t (m)\t| N(t)\t| r_llegada\t\t| t_llegada\t\t| r_servicio\t| t_servicio\t| s_llegada\t\t| s_salida\t\t| s_evento" << endl;
+		cout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
+ 	 	cout << "| XX.XXXX\t\t| XX\t| X.XXXX\t\t| XX.XXXX\t\t| X.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| Llegada" << endl;
+ 	 	cout << "| XX.XXXX\t\t| XX\t| X.XXXX\t\t| XX.XXXX\t\t| X.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| Salida" << endl;*/
+
 	}
-	
+
 	return 0;
 }

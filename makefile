@@ -1,7 +1,7 @@
 1: main.o
-	g++ -Wno-deprecated -o 1 Teoria.cpp main.o
+	g++ -Wno-deprecated -o 1 main.o
 
-main.o: main.cpp
+main.o: main.cpp Teoria.h Modelo.h
 	g++ -c -o main.o main.cpp
 
 clean:
