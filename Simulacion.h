@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <list>
 
 using namespace std;
 
@@ -44,23 +45,36 @@ Simulacion::Simulacion()
 	X=0;
 }
 
+//FUNCION QUE NOS AYUDA A ENCONTRAR LA POSICION PARA ALMACENAR tSalida Y CONOCER EL SIGUIENTE EVENTO
+bool Simulacion::comprobarSig (list<double> &salidasServ, double &salidaCercana, double tiempo, double tSalida, double entradaCercana, double tSim)
+{
+	/*En esta funcion se realizan las siguientes tareas
+	1.- Buscar cual posicion de la lista esta disponible para almacenar (tSalida + tiempo)
+	2.- Comprobar cual salida en la lista ocurrirá primero y asignarle ese valor a salidaCercana
+	3.- Si (entradaCercana < salidaCercana) Y ((entradaCercana + tiempo) < tSim) retorna true (siguiente evento es entrada)
+		sino retorna false (siguiente evento es salida).
+	*/
+}
+
 void Simulacion::ejecutar( double a, double b, double replicas, double tTrans, double tSim)
 {
 	//DECLARAMOS LAS VARIABLES NECESARIAS PARA LA SIMULACION
- 	int Nt=0;//Cantidad actual de clientes en sistema
- 	int servidores=0;//Usado para llevar el control de los servidores disponibles
- 	float tLlegada=0;//Usado para calcular el Siguiente tiempo entre llegadas -- LOCALES --
- 	float tSalida=0;//Usado para calcular el Siguiente tiempo entre salidas    -- LOCALES -- 
+ 	int Nt=0;//Cantidad actual de clientes en sistema (en cola y en servidores)
+ 	float tLlegada=0;//Usado para calcular el Siguiente tiempo entre llegadas
+ 	float tSalida=0;//Usado para calcular el Siguiente tiempo entre salidas
+ 	float salidaCercana=0;//Usado para conocer localmente cual es la menor salida que ocurrirá
+ 	float entradaCercana=0;//Usado para conocer localmente cuando ocurrirá la siguiente entrada
  	double tiempo=0;//Usado para tiempo t de simulacion
  	//DECLARAMOS UNA VARIABLE ASISTENCIAL PARA ASIGNAR LOS NUMEROS ALEATORIOS GENERADOS EN CADA ITERACION DE LA SIMULACION
  	float aleatorio=0;//Llegada
- 	//DECLARAMOS LA VARIABLE NECESARIA PARA CONOCER LOS TIEMPOS DE SALIDA PARA CADA SERVIDOR
- 	float salidasServ[4] = {0,0,0,0};//Cada posicion representa el tiempo de salida para el servidor N
- 	//DECLARAMOS UN BOOLEANO QUE NOS PERMITA CONOCER LOS EVENTOS SIGUIENTES EN LA SIMULACION, DONDE TRUE ES ENTRADA Y FALSE ES SALIDA
+ 	//DECLARAMOS LA LISTA NECESARIA PARA CONOCER LOS TIEMPOS DE SALIDA PARA CADA SERVIDOR
+ 	list<double> salidasServ;//Donde la primera posicion corresponde al servidor 1 y asi para los demás
+ 	//DECLARAMOS UN BOOLEANO QUE NOS PERMITA CONOCER LOS EVENTOS SIGUIENTES EN LA SIMULACION, DONDE true ES ENTRADA Y false ES SALIDA
  	bool sigEven=true;
  	//---------------------------------------INICIO DE LA SIMULACION--------------------------------------
- 	cout << "| tiempo t (m)\t| N(t)\t| r_llegada\t\t| t_llegada\t\t| r_servicio\t| t_servicio\t| s_llegada\t\t| s_salida\t\t| s_evento" << endl;
- 	cout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
+ 	//Primera línea
+ 	//cout << "| tiempo t (m)\t| N(t)\t| r_llegada\t\t| t_llegada\t\t| r_servicio\t| t_servicio\t| s_llegada\t\t| s_salida\t\t| s_evento" << endl;
+ 	//cout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
 	srand (static_cast <unsigned> (time(0)));//Inicializamos la semilla aleatoria
 
 	aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -68,47 +82,44 @@ void Simulacion::ejecutar( double a, double b, double replicas, double tTrans, d
  	cout << "| " << tiempo <<"\t\t| " << Nt << "\t| " << aleatorio <<"\t\t| " << tLlegada << "\t\t|------\t\t| -------\t\t| " << (tiempo + tLlegada) << "\t\t| -------\t\t| Llegada" << endl;
  	tiempo+=tLlegada;
 
- 	while(tiempo <= tSim)//Mientras haya tiempo para continuar la simulacion...
+ 	while((tiempo <= tSim) || (Nt > 0))//Mientras haya tiempo para continuar la simulacion O queden personas en sistema
  	{
  		//COMPROBAMOS QUE OCURRIRA EN ESTA ITERACION
  		if (sigEven==true)//Esta ocurriendo una entrada
  		{
+ 			Nt+=1;
  			aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
  			tLlegada = (-a)*(log(aleatorio));
- 			if (servidores < 4)//Si al menos un servidor esta disponible, Podemos estimar un tiempo de salida para alguien que puede ser atendido en esta iteracion
+ 			entradaCercana = tiempo + tLlegada;
+ 			if (Nt <= 4)//Si al menos un servidor esta disponible, Podemos estimar un tiempo de servicio para esta entrada
  			{
  				aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
  				tSalida = (-b)*(log(aleatorio));
  				/*
 				OIDO AL TAMBOR: Aqui debemos realizar una busqueda para saber cual servidor esta disponible para recibir a una entrada y guardar en la posicion correspondiente a ese vector
 				el tiempo en el que esa salida ocurrira
-
-				salidasServ[servidores]=tSalida;
-
  				*/
- 				servidores+=1;
+ 				sigEvent = comprobarSig(salidasServ,salidaCercana,tiempo,tSalida,entradaCercana,tSim);
  			}
  		}
  		else//Esta ocurriendo una salida
  		{
+ 			Nt-=1;
+ 			aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+ 			tSalida = (-b)*(log(aleatorio));
  			/*
- 			OIDO AL TAMBOR: Aqui debemos realizar un ciclo para saber cual servidor estara disponible para albergar el tiempo que tomara en salir el siguiente cliente a ser atendido
- 			
- 			salidasServ[servidores]=0;
- 			servidores-=1
-			aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-			tSalida = (-b)*(log(aleatorio));
-			salidasServ[servidores]=tSalida;
+			OIDO AL TAMBOR: Aqui debemos realizar una busqueda para saber cual servidor esta disponible para recibir a una entrada y guardar en la posicion correspondiente a ese vector
+			el tiempo en el que esa salida ocurrira
  			*/
+ 			sigEvent = comprobarSig(salidasServ,salidaCercana,tiempo,tSalida,entradaCercana,tSim);
  		}
- 		//GENERAMOS LOS NUMEROS ALEATORIOS DE ACUERDO A LOS ESTADOS PARA LUEGO REALIZAR LAS OPERACIONES PERTINENTES
- 		//Por evento de llegada
- 		aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
- 		tLlegada = (-a)*(log(aleatorio));
- 		//por evento de servicio
- 		aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
- 		tSalida = (-b)*(log(aleatorio));
- 		//AHORA EFECTUAMOS LAS COMPROBACIONES LÓGICAS PARA LA SIGUIENTE ITERACION
+ 		//ANTES DE LA SIGUIENTE ITERACION, DEBEMOS IMPRIMIR LA SALIDA CORRESPONDIENTE A ESTA
+
+ 		//LUEGO INCREMENTAMOS tiempo DE ACUERDO AL SIGUIENTE EVENTO
+ 		if (sigEvent)
+ 			tiempo+=entradaCercana;
+ 		else
+ 			tiempo+=salidaCercana;
  	}
 }
 
@@ -142,5 +153,17 @@ void Simulacion::limpiar()
 	Wq=0;
 	X=0;
 }
+
+/*ANOTACIONES IMPORTANTES:
+ 		GENERACION DE NUMEROS ALEATORIOS
+ 		//Inicializamos la semilla aleatoria, POR CADA SIMULACION
+ 		srand (static_cast <unsigned> (time(0)));
+ 		//Por evento de llegada
+ 		aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+ 		tLlegada = (-a)*(log(aleatorio));
+ 		//por evento de servicio
+ 		aleatorio = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+ 		tSalida = (-b)*(log(aleatorio));
+*/
 
 #endif
