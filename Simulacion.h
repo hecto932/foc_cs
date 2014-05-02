@@ -54,16 +54,11 @@ bool Simulacion::comprobarSig_estado (vector<double> &t_salidas, double &siguien
 {
 	int min_position = min_element(t_salidas.begin(),t_salidas.end())-t_salidas.begin();	//OBTENGO LA POSICION DEL MENOR TIEMPO
 	t_salidas[min_position] = siguiente_salida;												//REGISTRO EL NUEVO TIEMPO DE SALIDA
-	siguiente_salida = *min_element(t_salidas.begin(),t_salidas.end());						//OBTENGO EL MENOR TIEMPO
+	siguiente_salida = *min_element(t_salidas.begin(),t_salidas.end());						//OBTENGO EL MENOR TIEMPO, DEBE SER DISTINTO A 0
 
 	//SI PRIMERO OCURRE UNA ENTRADA Y HAY SUFICIENTE TIEMPO PARA ELLA RETORNAR
 	return (siguiente_entrada < siguiente_salida && siguiente_entrada < ts);
 }
-
-/*bool Simulacion::comprobarSig_salida()
-{
-
-}*/
 
 void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 {
@@ -84,37 +79,59 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 	t_llegada = -a*log(r);
 	s_llegada = t_llegada;
 	s_evento = true;
+	//cout << tiempo << "\t" << Nt << "\t" << r << "\t" << t_llegada << "\t0\t0\t" << s_llegada << "\t0\tLlegada" << endl;
 	tiempo+=t_llegada;
 
 	while( (tiempo<=ts) || (Nt>0) )
 	{
+		if (tiempo >= ts) s_llegada = 0;	//SI YA NO SE ADMITIRAN MAS ENTRADAS POR FALTA DE TIEMPO, EL SIGUIENTE TIEMPO DE LLEGADA DEBE SER NULO
+		//cout << tiempo << "\t";
 		if(s_evento)//SIGUIENTE EVENTO ES UNA ENTRADA
 		{
 			++Nt;																//INCREMENTA LA CANTIDAD DE CLIENTES EN SISTEMA EN 1
+			//cout << Nt << "\t";
 			r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SIGUIENTE ENTRADA
+			//cout << r << "\t";
 			t_llegada = -a*log(r);												//ESTIMAMOS EL TIEMPO QUE PASARÀ PARA LA SIGUIENTE ENTRADA
+			//cout << t_llegada << "\t";
 			s_llegada = tiempo + t_llegada;										//ESTIMAMOS EL TIEMPO EN SIMULACION QUE OCURRIRA LA LLEGADA
 			if(Nt<=4)															//SI HAY SERVIDORES LIBRES PARA ATENDER UNA ENTRADA
 			{
 				r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SALIDA
+				//cout << r << "\t";
 				t_servicio = -b*log(r);												//ESTIMAMOS EL TIEMPO EN QUE OCURRIRA LA SALIDA
+				//cout << t_servicio << "\t";
 				s_salida = tiempo + t_servicio;										//ESTIMAMOS EL TIEMPO EN SIMULACION QUE OCURRIRA LA SALIDA
-				s_evento = comprobarSig_estado(t_salidas,s_salida,s_llegada,ts);	//LLAMAMOS A comprobarSig
+				s_evento = comprobarSig_estado(t_salidas,s_salida,s_llegada,ts);	//LLAMAMOS A comprobarSig_estado
 			}
 		}
 		else //SIGUIENTE EVENTO ES UNA SALIDA
 		{
 			--Nt;
-			if(Nt>=4) 																//AL MENOS UNA ENTRADA NECESITA SER ATENDIDA
+			//cout << Nt << "\t0\t0\t";
+			if(Nt>0 && Nt>=4) 														//HAY ENTRADAS EN SISTEMA Y AL MENOS UNA ENTRADA NECESITA SER ATENDIDA
 			{
 				r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SALIDA
+				//cout << r << "\t";
 				t_servicio = -b*log(r);												//ESTIMAMOS EL TIEMPO EN QUE OCURRIRA LA SALIDA
+				//cout << t_servicio << "\t";
 				s_salida = tiempo + t_servicio;										//ESTIMAMOS EL TIEMPO EN SIMULACION QUE OCURRIRA LA SALIDA
 			}
 			else{									//NO HAY MAS ENTRADAS PARA SER ATENDIDAS
 				s_salida = 0;						//AL NO HABER OTRA ENTRADA EN ESPERA EL TIEMPO DE SALIDA ES NULO
 			}
-			s_evento = comprobarSig_estado(t_salidas,s_salida,s_llegada,ts);	//LLAMAMOS A comprobarSig
+			s_evento = comprobarSig_estado(t_salidas,s_salida,s_llegada,ts);	//LLAMAMOS A comprobarSig_estado
+		}
+		//cout << s_llegada << "\t" << s_salida << "\t";
+		if (s_evento)
+		{
+			tiempo += s_llegada;	//SI LA SIGUIENTE ITERACIÓN SERÁ UNA ENTRADA, EL TIEMPO ACTUAL DE SIMULACIÓN INCREMENTA HASTA EL MOMENTO DE LA LLEGADA
+			//cout << "Llegada" << endl;
+		}
+		else
+		{
+			tiempo += s_salida;			//SI LA SIGUIENTE ITERACIÓN SERÁ UNA SALIDA, EL TIEMPO ACTUAL DE SIMULACIÓN INCREMENTA HASTA EL MOMENTO DE LA SALIDA
+			//cout << "Salida" << endl;
 		}
 	} 
 
