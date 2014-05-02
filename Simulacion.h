@@ -49,12 +49,21 @@ Simulacion::Simulacion()
 	X=0;
 }
 
+//COMPARE DEL MIN_ELEMENT
+bool compare(int i, int j)
+{
+	if(i==j && i ==0 && j==0)
+		return 0;
+	else if(i<j)
+		return i;
+}
+
 //FUNCION QUE NOS AYUDA A ENCONTRAR LA POSICION PARA ALMACENAR tSalida Y CONOCER EL SIGUIENTE EVENTO
 bool Simulacion::comprobarSig_estado (vector<double> &t_salidas, double &siguiente_salida, double siguiente_entrada, double ts)
 {
-	int min_position = min_element(t_salidas.begin(),t_salidas.end())-t_salidas.begin();	//OBTENGO LA POSICION DEL MENOR TIEMPO
+	int min_position = min_element(t_salidas.begin(),t_salidas.end(), compare)-t_salidas.begin();	//OBTENGO LA POSICION DEL MENOR TIEMPO
 	t_salidas[min_position] = siguiente_salida;												//REGISTRO EL NUEVO TIEMPO DE SALIDA
-	siguiente_salida = *min_element(t_salidas.begin(),t_salidas.end());						//OBTENGO EL MENOR TIEMPO, DEBE SER DISTINTO A 0
+	siguiente_salida = *min_element(t_salidas.begin(),t_salidas.end(), compare);						//OBTENGO EL MENOR TIEMPO, DEBE SER DISTINTO A 0
 
 	//SI PRIMERO OCURRE UNA ENTRADA Y HAY SUFICIENTE TIEMPO PARA ELLA RETORNAR
 	return (siguiente_entrada < siguiente_salida && siguiente_entrada < ts);
