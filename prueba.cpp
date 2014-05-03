@@ -11,15 +11,16 @@ bool compare(int i, int j)
 
 int main ()
 {
-	vector<int> v (4,0);
+	vector<int> v (6,0);
 	v[0] = 17;
 	v[1] = 2;
 	v[2] = 4;
 	v[3] = 1; 
 	
-	cout << min_element(v.begin(),v.end(), compare)-v.begin() << endl <<*min_element(v.begin(),v.end(),compare) << endl;
-	v[min_element(v.begin(),v.end(), compare)-v.begin()] = 0;
-	cout << min_element(v.begin(),v.end(), compare)-v.begin() << endl <<*min_element(v.begin(),v.end(),compare) << endl;
+	cout << v.size()<<endl;
+	//cout << min_element(v.begin(),v.end(), compare)-v.begin() << endl <<*min_element(v.begin(),v.end(),compare) << endl;
+	//v[min_element(v.begin(),v.end(), compare)-v.begin()] = 0;
+	//cout << min_element(v.begin(),v.end(), compare)-v.begin() << endl <<*min_element(v.begin(),v.end(),compare) << endl;
 
 
   return 0;
