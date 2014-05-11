@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <string>
 
 #include "Teoria.h"
 #include "Simulacion.h"
@@ -30,7 +31,7 @@ class Modelo
 
 		//METODOS
 		void resolver_teoria();
-		void realizar_simulacion();
+		void realizar_simulacion(int i, ofstream& out_simulacion);
 		void show_results(int i, ofstream& out_performance);
 
 		void limpiar();
@@ -78,9 +79,9 @@ void Modelo::resolver_teoria()
 	T.Resolver(1/lambda,1/miu);
 }
 
-void Modelo::realizar_simulacion()
+void Modelo::realizar_simulacion(int i, ofstream& out_simulacion)
 {
-	S.ejecutar(lambda,miu,cr,tt,ts);
+	S.ejecutar(i,out_simulacion,lambda,miu,cr,tt,ts);
 }
 
 void Modelo::show_results(int i, ofstream& out_performance)

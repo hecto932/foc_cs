@@ -28,7 +28,7 @@ class Simulacion
 	 	void tiempos_vector(vector<double> &t_salidas, double &s_salida, double tiempo_sig_salida, double ts, bool estado_actual);
 	 	bool comprobarSig_estado(vector<double> &t_salidas, double &siguiente_salida, double tiempo_sig_salida,double siguiente_entrada, double ts, bool estado_actual,int Nt);
 	 	//EJECUCIÓN DE LA SIMULACIÓN
-	 	void ejecutar(double a, double b, double replicas, double tTrans, double tSim);
+	 	void ejecutar(int i, ofstream& out_simulacion, double a, double b, double cr, double tt, double ts);
 	 	//OBSERVADORES
 	 	double Get_L();
 		double Get_Lq();
@@ -125,7 +125,7 @@ bool Simulacion::comprobarSig_estado (vector<double> &t_salidas, double &siguien
 	}
 }
 
-void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
+void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, double cr, double tt, double ts)
 {
 	srand (static_cast <unsigned> (time(0)));	//INICIALIZANDO UNA SEMILLA RANDOM
 
@@ -134,16 +134,16 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 	double t_llegada;				//TIEMPO PARA LA SIGUIENTE LLEGADA
 	double t_servicio; 				//TIEMPO PARA EL SIGUIENTE SERVICIO
 	double s_llegada;				//TIEMPO EN SIMULACION PARA LA SIGUIENTE LLEGADA
-	double s_salida = 0;				//TIEMPO EN SIMULACION PARA LA SIGUIENTE SALIDA
+	double s_salida = 0;			//TIEMPO EN SIMULACION PARA LA SIGUIENTE SALIDA
 	double tiempo = 0;				//TIEMPO ACTUAL DE LA SIMULACION EN CADA ITERACION
 	bool s_evento;					//SIGUIENTE EVENTO A OCURRIR true: entrada, false: salida
 	vector<double> t_salidas(4,0);	//ALMACENADOR DE LOS TIEMPOS DE SALIDA DE CADA SERVIDOR
 
 	//VARIABLES NECESARIAS PARA TOMA DE OBSERVACIONES
-	bool tomar_obs = false; 			//INDICA SI SE PUEDEN TOMAR LAS OBSERVACIONES DE ACUERDO A SI SE CUMPLIÓ EL TIEMPO TRANSITORIO
-	int clientes_atendidos = 0; 	//CUENTA DE LA CANTIDAD DE CLIENTES QUE INGRESAN AL SISTEMA
+	bool tomar_obs = false; 				//INDICA SI SE PUEDEN TOMAR LAS OBSERVACIONES DE ACUERDO A SI SE CUMPLIÓ EL TIEMPO TRANSITORIO
+	int clientes_atendidos = 0; 			//CUENTA DE LA CANTIDAD DE CLIENTES QUE INGRESAN AL SISTEMA
 	long double compara_T = 0;				//AYUDA A ALMACENAR EN CADA ITERACION (tiempo_siguiente - tiempo_actual)
-	long double suma_L = 0;				//AYUDA A ALMACENAR EN CADA ITERACION (suma_T * Nt) PARA EL CALCULO DE L
+	long double suma_L = 0;					//AYUDA A ALMACENAR EN CADA ITERACION (suma_T * Nt) PARA EL CALCULO DE L
 	long double suma_Lq = 0;				//AYUDA A ALMACENAR EN CADA ITERACION (suma_T * (Nt - 4)) PARA EL CALCULO DE Lq SII (Nt - 4) > 0
 	long double tiempos_sal = 0;			//AYUDA A GUARDAR TODOS LOS TIEMPOS DE SALIDA
 	long double tiempos_lle = 0;			//AYUDA A GUARDAR TODOS LOS TIEMPOS DE LLEGADA
@@ -159,6 +159,23 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 
 	int replica = 1;
 
+	/*
+	tiempo 		Nt  	r 			t_llegada 			r_servicio 					s_llegada 	
+	Tiempo_t	N(t)	r_llegada	st_entre_llegadas	r_servicio	st_servicio		s_llegada 	s_salida s_evento
+
+	XXXX.XXXX 		XX 		X.XXXX		XX.XXXX				-			XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
+	*/
+
 	while (replica <= cr)
 	{
 		//EJECUCION DE LA SIMULACION
@@ -166,22 +183,25 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 		r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 		t_llegada = -a*log(r);
 		s_llegada = t_llegada;
-		s_evento = true;
-		//cout << "SIMULACION PARA EL MODELO - REPLICA #" << replica << endl << endl;
-		//cout << "tiempo\t\tNt\t\tr_llegada\t\tt_llegada\t\tr_servicio\t\ts_servicio\t\tst_llegada\t\tst_salida\t\ts_estado" << endl;
-		//cout << tiempo << "\t" << Nt << "\t" << r << "\t" << t_llegada << "\t0\t0\t" << s_llegada << "\t0\tLlegada" << endl;
+		s_evento = true; 
+
+		out_simulacion << "SIMULACION PARA EL MODELO - REPLICA #" << replica << endl << endl;
+		out_simulacion << "Tiempo_t\tN(t)\tr_llegada\tst_entre_llegadas\tr_servicio \tst_servicio\t\ts_llegada\ts_salida\ts_evento" << endl;
+		out_simulacion << tiempo << "\t\t" << Nt << "\t\t" << r << "\t\t" << t_llegada << "\t\t\t\t------\t\t------\t\t\t" << s_llegada << "\t\t------\t\tLlegada" << endl;
+
 		tiempo+=t_llegada;
 
 		//RESTO DE LA SIMULACION
 		while( tiempo!=0 && (tiempo<=ts || Nt>0))
 		{
+			//out_simulacion << "( ";
 			if (tiempo >= tt) tomar_obs = true;			//SI YA PASO EL TIEMPO TRANSITORIO, SE PUEDE INICIAR LA TOMA DE OBSERVACIONES
-			//cout << tiempo << "\t";
+			out_simulacion << tiempo << "\t\t";
 			if(s_evento)//SIGUIENTE EVENTO ES UNA ENTRADA
 			{
 				clientes_atendidos += 1;
 				++Nt;																//INCREMENTA LA CANTIDAD DE CLIENTES EN SISTEMA EN 1
-				//cout << Nt << "\t";
+				out_simulacion << Nt << "\t\t";
 				r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SIGUIENTE ENTRADA
 				t_llegada = -a*log(r);												//ESTIMAMOS EL TIEMPO QUE PASARÀ PARA LA SIGUIENTE ENTRADA
 				s_llegada = tiempo + t_llegada;										//ESTIMAMOS EL TIEMPO EN SIMULACION QUE OCURRIRA LA LLEGADA
@@ -189,16 +209,18 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 				{
 					s_llegada = 0;
 				}
-				//cout << r << "\t" << t_llegada << "\t";
+				out_simulacion << r << "\t\t" << t_llegada << "\t\t\t\t";
 				if(Nt<=4)//SI HAY SERVIDORES LIBRES PARA ATENDER UNA ENTRADA
 				{
 					r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SALIDA
 					t_servicio = -b*log(r);												//ESTIMAMOS EL TIEMPO EN QUE OCURRIRA LA SALIDA
+					out_simulacion << r << "\t\t" << t_servicio << "\t\t\t";
 				}else{
 					r = 0;
 					t_servicio = 0;
+					out_simulacion << "--------" << "\t\t" << "--------" << "\t\t\t";
 				}
-				//cout << r << "\t" << t_servicio << "\t";
+				
 				if (tomar_obs)
 				{
 					if (s_llegada != tiempo) tiempos_lle += s_llegada;
@@ -210,7 +232,7 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 			else //SIGUIENTE EVENTO ES UNA SALIDA, NO SE GENERA UNA ENTRADA EN ESTA ITERACION
 			{
 				--Nt;
-				//cout << Nt << "\t0\t0\t";
+				out_simulacion << Nt << "\t\t--------\t\t\t";
 				if (Nt >=4)
 				{
 					r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SALIDA
@@ -219,27 +241,41 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 					r = 0;
 					t_servicio = 0;
 				}
-				//cout << r << "\t" << t_servicio << "\t";
+				if(r == 0 && t_servicio == 0)
+					out_simulacion << "--------" << "\t\t\t" << "--------" << "\t\t";
+				else
+					out_simulacion << r << "\t\t" << t_servicio << "\t\t\t";
+				
 				if (tomar_obs)
 				{
 					if ((tiempo + t_servicio)!= tiempo) tiempos_sal += (tiempo + t_servicio);
 					tiempos_ser += t_servicio;
+
 				}
 				s_evento = comprobarSig_estado(t_salidas,s_salida,tiempo + t_servicio,s_llegada,tiempo,s_evento,Nt);	//LLAMAMOS A comprobarSig_estado
 			}
-			//cout << s_llegada << "\t" << s_salida << "\t";
+			if(s_llegada == 0 && s_salida == 0)
+				out_simulacion << "--------" << "\t\t" << "------" << "\t\t";
+			else if(s_llegada == 0)
+				out_simulacion << "--------" << "\t\t" << s_salida << "\t\t";
+			else if(s_salida == 0)
+				out_simulacion << s_llegada << "\t\t" << "------" << "\t\t";
+			else
+				out_simulacion << s_llegada << "\t\t" << s_salida << "\t\t";
+
 			if (s_evento)
 			{
 				compara_T = s_llegada - tiempo;
 				tiempo = s_llegada;	//SI LA SIGUIENTE ITERACIÓN SERÁ UNA ENTRADA, EL TIEMPO ACTUAL DE SIMULACIÓN INCREMENTA HASTA EL MOMENTO DE LA LLEGADA
-				//cout << "Llegada" << endl;
+				out_simulacion << "Entrada" << endl;
 			}
 			else
 			{
 				compara_T = s_salida - tiempo;
 				tiempo = s_salida;			//SI LA SIGUIENTE ITERACIÓN SERÁ UNA SALIDA, EL TIEMPO ACTUAL DE SIMULACIÓN INCREMENTA HASTA EL MOMENTO DE LA SALIDA
-				/*if (s_llegada==0 && s_salida==0) cout << "--------" << endl;
-				else cout << "Salida" << endl;*/
+				//if (s_llegada==0 && s_salida==0) out_simulacion << "----" << endl;
+				//else out_simulacion << "Salida" << endl;
+				out_simulacion << "Salida" << endl;
 			}
 			//TOMA DE OBSERVACIONES
 			if (tomar_obs)
@@ -248,9 +284,10 @@ void Simulacion::ejecutar( double a, double b, double cr, double tt, double ts)
 				if ((Nt-4) > 0) suma_Lq += (compara_T * (Nt - 4));
 			}
 			if (tiempo !=0) tt_sim = tiempo;
+			//out_simulacion << ")" << endl;
 		}
 		//ASIGNAMOS OBSERVACIONES TEMPORALES
-		//cout << endl << "-------------------------------------------------------------------------------------------------------------------" << endl << endl;
+		out_simulacion << endl << "--------------------------------------------------------------------------------------------------------------------" << endl << endl;
 		aux_X += (((tiempos_ser / tt_sim) / 4) * 100);
 		aux_L += suma_L / tt_sim;
 		aux_Lq += suma_Lq / tt_sim;

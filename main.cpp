@@ -21,6 +21,7 @@
 #include "Modelo.h"
 
 using namespace std;
+using std::string;
 
 int main()
 {
@@ -32,6 +33,8 @@ int main()
 
 	in_modelo.open("modelo.in",ios::in);
 	out_performance.open("performance.out");//CREAMOS EL ARCHIVO DE SALIDA PERFORMANCE.OUT
+	out_simulacion.open("Simulacion.txt");
+
 
 	if(!in_modelo.is_open())//SI EL ARCHIVO NO FUE ABIERTO EXITOSAMENTE
 	{
@@ -49,16 +52,19 @@ int main()
 
 		for(int i=0;i<n;++i)//PARA CADA MODELO
 		{
+			
 			m.leer_modelo(in_modelo);
 			m.resolver_teoria();
-			m.realizar_simulacion();
+			m.realizar_simulacion(i,out_simulacion);
 			m.show_results(i,out_performance);
 			m.limpiar();
+			
 		}
 
 		in_modelo.close();//CERRAMOS EL ARCHIVO DE ENTRADA
 		out_performance.close();//CERRAMOS EL ARCHIVO DE SALIDA
-
+		out_simulacion.close();
+		
 		/*cout << "| tiempo t (m)\t| N(t)\t| r_llegada\t\t| t_llegada\t\t| r_servicio\t| t_servicio\t| s_llegada\t\t| s_salida\t\t| s_evento" << endl;
 		cout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
  	 	cout << "| XX.XXXX\t\t| XX\t| X.XXXX\t\t| XX.XXXX\t\t| X.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| Llegada" << endl;

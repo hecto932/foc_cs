@@ -1,27 +1,14 @@
-#include <iostream>
-#include <vector>
-#include <algorithm>    // std::min_element, std::max_element
+// to_string example
+#include <iostream>   // std::cout
+#include <string>     // std::string, std::to_string
 
 using namespace std;
 
-bool compare(int i, int j)
-{
-	return (i<j && i!=0 && j!=0);
-}
-
 int main ()
 {
-	vector<int> v (6,0);
-	v[0] = 17;
-	v[1] = 2;
-	v[2] = 4;
-	v[3] = 1; 
-	
-	cout << v.size()<<endl;
-	//cout << min_element(v.begin(),v.end(), compare)-v.begin() << endl <<*min_element(v.begin(),v.end(),compare) << endl;
-	//v[min_element(v.begin(),v.end(), compare)-v.begin()] = 0;
-	//cout << min_element(v.begin(),v.end(), compare)-v.begin() << endl <<*min_element(v.begin(),v.end(),compare) << endl;
-
-
+  std::string pi = "pi is " + std::to_string(3.1415926);
+  std::string perfect = std::to_string(1+2+4+7+14) + " is a perfect number";
+  std::cout << pi << '\n';
+  std::cout << perfect << '\n';
   return 0;
 }
