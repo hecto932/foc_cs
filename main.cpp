@@ -28,12 +28,12 @@ int main()
 	Modelo m;
 	int n;
 
-	ifstream in_modelo;//APUNTADOR AL ARCHIVO DE ENTRADA "modelo.in" 
-	ofstream out_performance, out_simulacion;//APUNTADOR AL ARCHIVO DE SALIDA "performance.out"
+	ifstream in_modelo;							//APUNTADOR AL ARCHIVO DE ENTRADA "modelo.in" 
+	ofstream out_performance, out_simulacion;	//APUNTADOR AL ARCHIVO DE SALIDA "performance.out"
 
 	in_modelo.open("modelo.in",ios::in);
-	out_performance.open("performance.out");//CREAMOS EL ARCHIVO DE SALIDA PERFORMANCE.OUT
-	out_simulacion.open("Simulacion.txt");
+	out_performance.open("performance.out");	//CREAMOS EL ARCHIVO DE SALIDA PERFORMANCE.OUT
+	//out_simulacion.open("Simulacion.txt");
 
 
 	if(!in_modelo.is_open())//SI EL ARCHIVO NO FUE ABIERTO EXITOSAMENTE
@@ -42,28 +42,29 @@ int main()
 	}
 	else
 	{
-		in_modelo >> n;//LEEMOS EL NUMERO DE MODELOS A PROCESAR DEL ARCHIVO MODELO.IN
+		in_modelo >> n;							//LEEMOS EL NUMERO DE MODELOS A PROCESAR DEL ARCHIVO MODELO.IN
 		
-		out_performance.precision(2);//PRECISION A 2 DECIMALES
+		out_performance.precision(2);			//PRECISION A 2 DECIMALES
 		out_performance.setf(ios::fixed);
 
-		out_simulacion.precision(4);//PRECISION A 4 DECIMALES
+		out_simulacion.precision(4);			//PRECISION A 4 DECIMALES
 		out_simulacion.setf(ios::fixed);
 
-		for(int i=0;i<n;++i)//PARA CADA MODELO
+		for(int i=0;i<n;++i)					//PARA CADA MODELO
 		{
-			
+			string name  = "Simulacion" + i + ".txt";
+			out_simulacion.open(name.c_str());
 			m.leer_modelo(in_modelo);
 			m.resolver_teoria();
 			m.realizar_simulacion(i,out_simulacion);
 			m.show_results(i,out_performance);
 			m.limpiar();
-			
+			out_simulacion.close();
 		}
 
-		in_modelo.close();//CERRAMOS EL ARCHIVO DE ENTRADA
-		out_performance.close();//CERRAMOS EL ARCHIVO DE SALIDA
-		out_simulacion.close();
+		in_modelo.close();						//CERRAMOS EL ARCHIVO DE ENTRADA
+		out_performance.close();				//CERRAMOS EL ARCHIVO DE SALIDA
+		
 		
 		/*cout << "| tiempo t (m)\t| N(t)\t| r_llegada\t\t| t_llegada\t\t| r_servicio\t| t_servicio\t| s_llegada\t\t| s_salida\t\t| s_evento" << endl;
 		cout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;

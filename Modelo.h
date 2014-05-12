@@ -2,6 +2,7 @@
 #define _MODELO_
 
 #include <iostream>
+#include <cstdio> 
 #include <fstream>
 #include <string>
 
@@ -88,9 +89,9 @@ void Modelo::show_results(int i, ofstream& out_performance)
 {
 	//ESCRIBIMOS LOS RESULTADOS EN EL ARCHIVO DE SALIDA
 	out_performance << "Modelo " << i+1 << ":" << endl;
-	out_performance << "\t\t\t" << "Utilización" << "\t\t\t" << "L" << "\t\t"  << "Lq" << "\t\t" << "W" << "\t\t" << "Wq" << endl;
-	out_performance << "Simulación" << "\t\t"  << S.Get_X() << "\t\t\t"  << S.Get_L() << "\t"  << S.Get_Lq() << "\t"  << S.Get_W() << "\t"  << S.Get_Wq() << endl;
-	out_performance << "Teórico" << "\t\t\t"  << T.Get_X() << "\t\t\t"  << T.Get_L() << "\t"  << T.Get_Lq() << "\t"  << T.Get_W() << "\t"  << T.Get_Wq() << endl;
+	out_performance << "\t\t\t" << "Utilización" << "\t\t" << "L" << "\t\t"  << "Lq" << "\t\t" << "W" << "\t\t" << "Wq" << endl;
+	out_performance << "Simulación" << "\t"  << S.Get_X() << "\t\t\t"  << S.Get_L() << "\t"  << S.Get_Lq() << "\t"  << S.Get_W() << "\t"  << S.Get_Wq() << endl;
+	out_performance << "Teórico" << "\t\t"  << T.Get_X() << "\t\t\t"  << T.Get_L() << "\t"  << T.Get_Lq() << "\t"  << T.Get_W() << "\t"  << T.Get_Wq() << endl;
 	out_performance << endl;
 }
 

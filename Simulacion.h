@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cstdio>
 #include <ctime>
 #include <cmath>
 #include <list>
@@ -159,23 +160,6 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 
 	int replica = 1;
 
-	/*
-	tiempo 		Nt  	r 			t_llegada 			r_servicio 					s_llegada 	
-	Tiempo_t	N(t)	r_llegada	st_entre_llegadas	r_servicio	st_servicio		s_llegada 	s_salida s_evento
-
-	XXXX.XXXX 		XX 		X.XXXX		XX.XXXX				-			XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	XXXX.XXXX		XX 		X.XXXX		XX.XXXX				XX.XXXX		XX.XXXX			XXX.XXXX 	Llegada
-	*/
-
 	while (replica <= cr)
 	{
 		//EJECUCION DE LA SIMULACION
@@ -186,9 +170,9 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 		s_evento = true; 
 
 		out_simulacion << "SIMULACION PARA EL MODELO - REPLICA #" << replica << endl << endl;
-		out_simulacion << "Tiempo_t\tN(t)\tr_llegada\tst_entre_llegadas\tr_servicio \tst_servicio\t\ts_llegada\ts_salida\ts_evento" << endl;
-		out_simulacion << tiempo << "\t\t" << Nt << "\t\t" << r << "\t\t" << t_llegada << "\t\t\t\t------\t\t------\t\t\t" << s_llegada << "\t\t------\t\tLlegada" << endl;
-
+		out_simulacion << "Tiempo_t\t\tN(t)\tr_llegada\tste_llegas\tr_servicio \tst_servicio\t\ts_llegada\ts_salida\ts_evento" << endl;
+		out_simulacion << tiempo << "\t\t\t" << Nt << "\t\t" << r << "\t\t" << t_llegada << "\t\t-------\t\t-------\t\t\t" << s_llegada << "\t\t-------\t\tLlegada" << endl;
+		
 		tiempo+=t_llegada;
 
 		//RESTO DE LA SIMULACION
@@ -196,9 +180,16 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 		{
 			//out_simulacion << "( ";
 			if (tiempo >= tt) tomar_obs = true;			//SI YA PASO EL TIEMPO TRANSITORIO, SE PUEDE INICIAR LA TOMA DE OBSERVACIONES
-			out_simulacion << tiempo << "\t\t";
+
+			if(tiempo < 100){
+				out_simulacion << tiempo << "\t\t\t";
+			}
+			else{
+				out_simulacion << tiempo << "\t\t";
+			}
 			if(s_evento)//SIGUIENTE EVENTO ES UNA ENTRADA
 			{
+				//out_simulacion << "(1)";
 				clientes_atendidos += 1;
 				++Nt;																//INCREMENTA LA CANTIDAD DE CLIENTES EN SISTEMA EN 1
 				out_simulacion << Nt << "\t\t";
@@ -209,16 +200,22 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 				{
 					s_llegada = 0;
 				}
-				out_simulacion << r << "\t\t" << t_llegada << "\t\t\t\t";
+				out_simulacion << r << "\t\t" << t_llegada << "\t\t";
 				if(Nt<=4)//SI HAY SERVIDORES LIBRES PARA ATENDER UNA ENTRADA
 				{
 					r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SALIDA
 					t_servicio = -b*log(r);												//ESTIMAMOS EL TIEMPO EN QUE OCURRIRA LA SALIDA
-					out_simulacion << r << "\t\t" << t_servicio << "\t\t\t";
+					//out_simulacion << r << "\t\t" << t_servicio << "\t\t\t";
+					if(t_servicio < 100){
+						out_simulacion << r << "\t\t" << t_servicio << "\t\t\t";
+					}
+					else{
+						out_simulacion << r << "\t\t" << t_servicio << "\t\t";
+					}
 				}else{
 					r = 0;
 					t_servicio = 0;
-					out_simulacion << "--------" << "\t\t" << "--------" << "\t\t\t";
+					out_simulacion << "-------\t\t-------" << "\t\t\t";
 				}
 				
 				if (tomar_obs)
@@ -231,20 +228,19 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 			}
 			else //SIGUIENTE EVENTO ES UNA SALIDA, NO SE GENERA UNA ENTRADA EN ESTA ITERACION
 			{
+				//out_simulacion << "(2)";
 				--Nt;
-				out_simulacion << Nt << "\t\t--------\t\t\t";
+				out_simulacion << Nt << "\t\t-------\t\t-------\t\t";
 				if (Nt >=4)
 				{
 					r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);	//GENERAMOS UN NUMERO ALEATORIO PARA LA SALIDA
 					t_servicio = -b*log(r);												//ESTIMAMOS EL TIEMPO EN QUE OCURRIRA LA SALIDA
+					out_simulacion << r << "\t\t" << t_servicio << "\t\t\t";
 				}else{
 					r = 0;
 					t_servicio = 0;
+					out_simulacion << "-------\t\t-------" << "\t\t\t";
 				}
-				if(r == 0 && t_servicio == 0)
-					out_simulacion << "--------" << "\t\t\t" << "--------" << "\t\t";
-				else
-					out_simulacion << r << "\t\t" << t_servicio << "\t\t\t";
 				
 				if (tomar_obs)
 				{
@@ -254,20 +250,33 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 				}
 				s_evento = comprobarSig_estado(t_salidas,s_salida,tiempo + t_servicio,s_llegada,tiempo,s_evento,Nt);	//LLAMAMOS A comprobarSig_estado
 			}
-			if(s_llegada == 0 && s_salida == 0)
-				out_simulacion << "--------" << "\t\t" << "------" << "\t\t";
-			else if(s_llegada == 0)
-				out_simulacion << "--------" << "\t\t" << s_salida << "\t\t";
-			else if(s_salida == 0)
-				out_simulacion << s_llegada << "\t\t" << "------" << "\t\t";
-			else
-				out_simulacion << s_llegada << "\t\t" << s_salida << "\t\t";
+			if(s_llegada == 0 && s_salida == 0){
+				out_simulacion << "-------\t\t-------" << "\t\t";
+			}
+			else if(s_llegada == 0){
+				out_simulacion << "-------\t\t\t" << s_salida << "\t";
+			}
+			else if(s_salida == 0){
+				if(s_llegada < 100)
+					out_simulacion << s_llegada << "\t\t" << "-------\t\t";		
+				else
+					out_simulacion << s_llegada << "\t" << "-------" << "\t\t";
+						
+			}
+			else{
+				if(s_llegada < 100)
+					out_simulacion << s_llegada << "\t\t" << s_salida << "\t\t";
+				else
+					out_simulacion << s_llegada << "\t" << s_salida << "\t";
+					
+			}
 
 			if (s_evento)
 			{
 				compara_T = s_llegada - tiempo;
 				tiempo = s_llegada;	//SI LA SIGUIENTE ITERACIÓN SERÁ UNA ENTRADA, EL TIEMPO ACTUAL DE SIMULACIÓN INCREMENTA HASTA EL MOMENTO DE LA LLEGADA
-				out_simulacion << "Entrada" << endl;
+				out_simulacion << "Llegada" << endl;
+				
 			}
 			else
 			{
@@ -276,6 +285,7 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 				//if (s_llegada==0 && s_salida==0) out_simulacion << "----" << endl;
 				//else out_simulacion << "Salida" << endl;
 				out_simulacion << "Salida" << endl;
+				
 			}
 			//TOMA DE OBSERVACIONES
 			if (tomar_obs)
@@ -288,6 +298,7 @@ void Simulacion::ejecutar(int i, ofstream& out_simulacion, double a, double b, d
 		}
 		//ASIGNAMOS OBSERVACIONES TEMPORALES
 		out_simulacion << endl << "--------------------------------------------------------------------------------------------------------------------" << endl << endl;
+		
 		aux_X += (((tiempos_ser / tt_sim) / 4) * 100);
 		aux_L += suma_L / tt_sim;
 		aux_Lq += suma_Lq / tt_sim;
