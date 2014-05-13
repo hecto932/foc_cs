@@ -1,6 +1,0 @@
-Tiempo_t	N(t)	r_llegada	st_entre_llegadas	r_servicio 	st_servicio		s_llegada	s_salida s_evento
-0.0000		0		0.1024		34.1879				-			34.1879	-	Llegada
-Tiempo_t	N(t)	r_llegada	st_entre_llegadas	r_servicio 	st_servicio		s_llegada	s_salida s_evento
-0.0000		0		0.1743		26.2079			-			26.2079	-	Llegada
-Tiempo_t	N(t)	r_llegada	st_entre_llegadas	r_servicio 	st_servicio		s_llegada	s_salida s_evento
-0.0000		0		0.8800		1.9181			-			1.9181	-	Llegada

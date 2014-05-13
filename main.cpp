@@ -16,12 +16,20 @@
 #include <cstdio>
 #include <fstream>
 #include <iomanip> 
-#include <string> 
+#include <sstream> 
 
 #include "Modelo.h"
 
 using namespace std;
 using std::string;
+
+//CONVIERTE UN ENTERO EN UN STRING
+string convertInt(int number)
+{
+   stringstream ss;//create a stringstream
+   ss << number;//add number to the stream
+   return ss.str();//return a string with the contents of the stream
+}
 
 int main()
 {
@@ -33,8 +41,6 @@ int main()
 
 	in_modelo.open("modelo.in",ios::in);
 	out_performance.open("performance.out");	//CREAMOS EL ARCHIVO DE SALIDA PERFORMANCE.OUT
-	//out_simulacion.open("Simulacion.txt");
-
 
 	if(!in_modelo.is_open())//SI EL ARCHIVO NO FUE ABIERTO EXITOSAMENTE
 	{
@@ -52,7 +58,7 @@ int main()
 
 		for(int i=0;i<n;++i)					//PARA CADA MODELO
 		{
-			string name  = "Simulacion" + i + ".txt";
+			string name = "Simulacion" + convertInt(i+1) + ".txt";
 			out_simulacion.open(name.c_str());
 			m.leer_modelo(in_modelo);
 			m.resolver_teoria();
@@ -64,13 +70,6 @@ int main()
 
 		in_modelo.close();						//CERRAMOS EL ARCHIVO DE ENTRADA
 		out_performance.close();				//CERRAMOS EL ARCHIVO DE SALIDA
-		
-		
-		/*cout << "| tiempo t (m)\t| N(t)\t| r_llegada\t\t| t_llegada\t\t| r_servicio\t| t_servicio\t| s_llegada\t\t| s_salida\t\t| s_evento" << endl;
-		cout << "----------------------------------------------------------------------------------------------------------------------------------" << endl;
- 	 	cout << "| XX.XXXX\t\t| XX\t| X.XXXX\t\t| XX.XXXX\t\t| X.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| Llegada" << endl;
- 	 	cout << "| XX.XXXX\t\t| XX\t| X.XXXX\t\t| XX.XXXX\t\t| X.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| XX.XXXX\t\t| Salida" << endl;*/
-
 	}
 
 	return 0;
