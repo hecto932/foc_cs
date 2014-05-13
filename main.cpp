@@ -18,7 +18,7 @@
 #include <iomanip> 
 #include <sstream> 
 
-#include "Modelo.h"
+#include "libraries/Modelo.h"
 
 using namespace std;
 using std::string;
@@ -39,8 +39,9 @@ int main()
 	ifstream in_modelo;							//APUNTADOR AL ARCHIVO DE ENTRADA "modelo.in" 
 	ofstream out_performance, out_simulacion;	//APUNTADOR AL ARCHIVO DE SALIDA "performance.out"
 
-	in_modelo.open("modelo.in",ios::in);
-	out_performance.open("performance.out");	//CREAMOS EL ARCHIVO DE SALIDA PERFORMANCE.OUT
+	in_modelo.open("in_models/modelo.in",ios::in);
+	out_performance.open("out_performance/performance.out");	//CREAMOS EL ARCHIVO DE SALIDA PERFORMANCE.OUT
+
 
 	if(!in_modelo.is_open())//SI EL ARCHIVO NO FUE ABIERTO EXITOSAMENTE
 	{
@@ -58,8 +59,8 @@ int main()
 
 		for(int i=0;i<n;++i)					//PARA CADA MODELO
 		{
-			string name = "Simulacion" + convertInt(i+1) + ".txt";
-			out_simulacion.open(name.c_str());
+			string name_file = "out_simulacion/Simulacion" + convertInt(i+1) + ".txt";
+			out_simulacion.open(name_file.c_str());
 			m.leer_modelo(in_modelo);
 			m.resolver_teoria();
 			m.realizar_simulacion(i,out_simulacion);
