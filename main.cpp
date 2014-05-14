@@ -59,7 +59,7 @@ int main()
 
 		for(int i=0;i<n;++i)					//PARA CADA MODELO
 		{
-			string name_file = "out_simulacion/Simulacion" + convertInt(i+1) + ".txt";
+			string name_file = "out_simulation/Simulacion" + convertInt(i+1) + ".txt";
 			out_simulacion.open(name_file.c_str());
 			m.leer_modelo(in_modelo);
 			m.resolver_teoria();
